@@ -3,6 +3,7 @@ package it.polito.ski;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeMap;
@@ -14,6 +15,22 @@ public class SkiArea {
 	private TreeMap<String,LiftType> liftTypesColl = new TreeMap<>();
 	private Set<Lift> liftsColl = new HashSet<>();
 	private Set<Slope> slopeColl = new HashSet<>();
+	private Set<CarParking> parkingsColl = new HashSet<>();
+	// collection created to associate each parking to the lift served by it
+	// map: key parking name value lift name
+	private TreeMap<String,List<String>> parkingServices = new TreeMap<>();
+	
+	
+	// this metod return the lift code from liftsColl given the lift name 
+	public String getLiftCode(String liftname) {
+		
+		for (Lift l : this.liftsColl) {
+			if (l.getName().equals(liftname)) {
+				return l.getTypeCode();
+			}
+		}
+		return null;
+	}
 	/**
 	 * Creates a new ski area
 	 * @param name name of the new ski area
@@ -218,7 +235,12 @@ public class SkiArea {
      * @param slots	slots available in the parking
      */
     public void createParking(String name, int slots){
-
+    	
+    	// create a new parking area
+    	CarParking parking = new CarParking(name,slots);
+    	
+    	this.parkingsColl.add(parking);
+    	
     }
 
     /**
@@ -227,6 +249,14 @@ public class SkiArea {
      * @return number of slots
      */
 	public int getParkingSlots(String parking) {
+		
+		// look for the correct parking area
+		for (CarParking p : this.parkingsColl) {
+			if (p.getName().equals(parking)) {
+				return p.getAvailableSlots(); 
+			}
+		}
+		System.out.println("Parking area not found!");
 		return -1;
 	}
 
@@ -236,7 +266,15 @@ public class SkiArea {
 	 * @param parking	parking name
 	 */
 	public void liftServedByParking(String lift, String parking) {
-
+		// if we don't have yet this parking services we create a new entry
+		if (!this.parkingServices.containsKey(parking)) {
+			List<String> liftsServed = new LinkedList<>();
+			liftsServed.add(lift);
+			this.parkingServices.put(parking, liftsServed);
+			return;
+		}
+		// otherwise we just need to update the list of lift served by the current parking area
+		this.parkingServices.get(parking).add(lift);
 	}
 
 	
@@ -246,7 +284,7 @@ public class SkiArea {
 	 * @return the list of lifts
 	 */
 	public Collection<String> servedLifts(String parking) {
-		return null;
+		return this.parkingServices.get(parking);
 	}
 
 	/**
@@ -258,6 +296,24 @@ public class SkiArea {
 	 * @return true if the parking is proportionate
 	 */
 	public boolean isParkingProportionate(String parkingName) {
+		
+		// get the list of lifts served
+		List<String> served = this.parkingServices.get(parkingName);
+		
+		// for each lift get the slots and update the total number of slots
+		int totalSlotsNumber=0;
+		for (String s : served) {
+			String liftcode = getLiftCode(s);
+			int slots = this.liftTypesColl.get(liftcode).getCapacity();
+			totalSlotsNumber += slots;
+		}
+		// get parking area size
+		int parkingSize = getParkingSlots(parkingName);
+		double res = parkingSize/totalSlotsNumber;
+		
+		if (res<30) {
+			return true;
+		}
 		return false;
 	}
 
