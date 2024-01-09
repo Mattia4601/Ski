@@ -2,14 +2,18 @@ package it.polito.ski;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 public class SkiArea {
 	
 	private String resortName;
-	private TreeMap<String,Lift> liftsColl = new TreeMap<>();
-	
+	private TreeMap<String,LiftType> liftTypesColl = new TreeMap<>();
+	private Set<Lift> liftsColl = new HashSet<>();
+	private Set<Slope> slopeColl = new HashSet<>();
 	/**
 	 * Creates a new ski area
 	 * @param name name of the new ski area
@@ -36,15 +40,15 @@ public class SkiArea {
     public void liftType(String code, String category, int capacity) throws InvalidLiftException {
     	
     	// check if the code has already been inserted in the collection
-    	if (this.liftsColl.containsKey(code)) {
+    	if (this.liftTypesColl.containsKey(code)) {
     		throw new InvalidLiftException();
     	}
     	
     	// create a new lift type
-    	Lift l = new Lift(code,category,capacity);
+    	LiftType l = new LiftType(code,category,capacity);
     	
     	// add it to the collection
-    	this.liftsColl.put(code,l);
+    	this.liftTypesColl.put(code,l);
     }
     
     /**
@@ -54,7 +58,7 @@ public class SkiArea {
      * @throws InvalidLiftException if the code has not been defined
      */
     public String getCategory(String typeCode) throws InvalidLiftException {
-		return this.liftsColl.get(typeCode).getCategory();
+		return this.liftTypesColl.get(typeCode).getCategory();
     }
 
     /**
@@ -64,7 +68,7 @@ public class SkiArea {
      * @throws InvalidLiftException if the code has not been defined
      */
     public int getCapacity(String typeCode) throws InvalidLiftException {
-        return this.liftsColl.get(typeCode).getCapacity();
+        return this.liftTypesColl.get(typeCode).getCapacity();
     }
 
 
@@ -74,7 +78,7 @@ public class SkiArea {
      */
 	public Collection<String> types() {
 		
-		Collection<String> codesList = this.liftsColl.keySet();
+		Collection<String> codesList = this.liftTypesColl.keySet();
 		
 		return codesList;
 	}
@@ -87,7 +91,14 @@ public class SkiArea {
 	 * @throws InvalidLiftException in case the lift type is not defined
 	 */
     public void createLift(String name, String typeCode) throws InvalidLiftException{
-
+    	// throws InvalidLiftException in case the lift type is not defined
+    	if (!this.liftTypesColl.containsKey(typeCode)) {
+    		throw new InvalidLiftException();
+    	}
+    	
+    	Lift l = new Lift(name, typeCode);
+    	
+    	this.liftsColl.add(l);
     }
     
 	/**
@@ -96,6 +107,14 @@ public class SkiArea {
 	 * @return type of the lift
 	 */
 	public String getType(String lift) {
+		
+		for (Lift l : this.liftsColl)
+		{
+			if (l.getName().equals(lift)) {
+				return l.getTypeCode();
+			}
+		}
+		System.out.println("getType didn't find the lift");
 		return null;
 	}
 
@@ -104,9 +123,17 @@ public class SkiArea {
 	 * @return the list of names sorted alphabetically
 	 */
 	public List<String> getLifts(){
-		return null;
+		return this.liftsColl.stream().map(Lift::getName).toList();
     }
 
+	// this method check if a given lift has been defined
+	public boolean isLiftDefined(String lift) {
+		for (Lift l : this.liftsColl) {
+			if (l.getName().equals(lift))
+				return true;
+		}
+		return false;
+	}
 	/**
 	 * create a new slope with a given name, difficulty and a starting lift
 	 * @param name			name of the slope
@@ -115,7 +142,17 @@ public class SkiArea {
 	 * @throws InvalidLiftException in case the lift has not been defined
 	 */
     public void createSlope(String name, String difficulty, String lift) throws InvalidLiftException {
-
+    	
+    	// throws InvalidLiftException in case the lift has not been defined
+    	if (!isLiftDefined(lift)) {
+    		throw new InvalidLiftException();
+    	}
+    	
+    	// create a new slope 
+    	Slope s = new Slope(name,difficulty,lift);
+    	
+    	// add the slope to the collection
+    	this.slopeColl.add(s);
     }
     
     /**
@@ -124,6 +161,13 @@ public class SkiArea {
      * @return difficulty
      */
 	public String getDifficulty(String slopeName) {
+		// looking for the slope
+		for (Slope s : this.slopeColl) {
+			if (s.getRunName().equals(slopeName)) {
+				return s.getDifficulty();
+			}
+		}
+		System.out.println("Slope not found!");
 		return null;
 	}
 
@@ -133,6 +177,15 @@ public class SkiArea {
 	 * @return starting lift
 	 */
 	public String getStartLift(String slopeName) {
+		
+		// looking for the slope
+		for (Slope s : this.slopeColl) {
+			if (s.getRunName().equals(slopeName)) {
+				return s.getLiftName();
+			}
+		}
+		System.out.println("Slope not found!");
+				
 		return null;
 	}
 
@@ -142,7 +195,7 @@ public class SkiArea {
 	 * @return list of slopes
 	 */
     public Collection<String> getSlopes(){
-		return null;
+		return this.slopeColl.stream().map(Slope::getRunName).toList();
     }
 
     /**
@@ -152,7 +205,11 @@ public class SkiArea {
      * @return the list of slopes
      */
     public Collection<String> getSlopesFrom(String lift){
-		return null;
+		return this.slopeColl.stream()
+				.filter(s->s.getLiftName().equals(lift))
+				.map(Slope::getRunName)
+				.toList();
+				
     }
 
     /**

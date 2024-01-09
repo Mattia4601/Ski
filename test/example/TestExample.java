@@ -34,7 +34,7 @@ public class TestExample {
         vl.createSlope("79", "red", "Frateive");
         vl.createSlope("Rio Nero", "black", "Frateive");
         
-        assertEquals("red", vl.getDifficulty("79"));
+        assertEquals("red", vl.getDifficulty("79")); 
         assertEquals(2, vl.getSlopesFrom("Frateive").size());
                 
         vl.createParking("Jouvenceaux", 100);

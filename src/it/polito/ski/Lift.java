@@ -2,41 +2,28 @@ package it.polito.ski;
 
 public class Lift {
 	
-	private String code;
-	private String category;
-	private int capacity;
-	
-	public Lift(String code, String category, int capacity) {
-		super();
-		this.code = code;
-		this.category = category;
-		this.capacity = capacity;
-	}
+	private String name;
+	private String typeCode;
 	
 	// getters and setters
-	public String getCode() {
-		return code;
+	public String getName() {
+		return name;
 	}
-
-	public void setCode(String code) {
-		this.code = code;
+	public void setName(String name) {
+		this.name = name;
 	}
-
-	public String getCategory() {
-		return category;
+	public String getTypeCode() {
+		return typeCode;
 	}
-
-	public void setCategory(String category) {
-		this.category = category;
-	}
-
-	public int getCapacity() {
-		return capacity;
-	}
-
-	public void setCapacity(int capacity) {
-		this.capacity = capacity;
+	public void setTypeCode(String typeCode) {
+		this.typeCode = typeCode;
 	}
 	
+	// contructor
+	public Lift(String name, String typeCode) {
+		super();
+		this.name = name;
+		this.typeCode = typeCode;
+	}
 	
 }
