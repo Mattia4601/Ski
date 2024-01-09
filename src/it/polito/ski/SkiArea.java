@@ -3,21 +3,26 @@ package it.polito.ski;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.TreeMap;
 
 public class SkiArea {
-
+	
+	private String resortName;
+	private TreeMap<String,Lift> liftsColl = new TreeMap<>();
+	
 	/**
 	 * Creates a new ski area
 	 * @param name name of the new ski area
 	 */
 	public SkiArea(String name) {
-    }
+		this.resortName=name;
+	}
 
 	/**
 	 * Retrieves the name of the ski area
 	 * @return name
 	 */
-	public String getName() { return null; }
+	public String getName() { return this.resortName; }
 
     /**
      * define a new lift type providing the code, the category (Cable Cabin, Chair, Ski-lift)
@@ -29,7 +34,17 @@ public class SkiArea {
      * @throws InvalidLiftException in case of duplicate code or if the capacity is <= 0
      */
     public void liftType(String code, String category, int capacity) throws InvalidLiftException {
-
+    	
+    	// check if the code has already been inserted in the collection
+    	if (this.liftsColl.containsKey(code)) {
+    		throw new InvalidLiftException();
+    	}
+    	
+    	// create a new lift type
+    	Lift l = new Lift(code,category,capacity);
+    	
+    	// add it to the collection
+    	this.liftsColl.put(code,l);
     }
     
     /**
@@ -39,7 +54,7 @@ public class SkiArea {
      * @throws InvalidLiftException if the code has not been defined
      */
     public String getCategory(String typeCode) throws InvalidLiftException {
-		return null;
+		return this.liftsColl.get(typeCode).getCategory();
     }
 
     /**
@@ -49,7 +64,7 @@ public class SkiArea {
      * @throws InvalidLiftException if the code has not been defined
      */
     public int getCapacity(String typeCode) throws InvalidLiftException {
-        return -1;
+        return this.liftsColl.get(typeCode).getCapacity();
     }
 
 
@@ -58,7 +73,10 @@ public class SkiArea {
      * @return the list of codes
      */
 	public Collection<String> types() {
-		return null;
+		
+		Collection<String> codesList = this.liftsColl.keySet();
+		
+		return codesList;
 	}
 	
 	/**
