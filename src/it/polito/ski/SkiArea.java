@@ -1,5 +1,7 @@
 package it.polito.ski;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -333,7 +335,51 @@ public class SkiArea {
 	 * @throws InvalidLiftException in case of duplicate type or non-existent lift type
 	 */
     public void readLifts(String path) throws IOException, InvalidLiftException {
-
+    	
+    	BufferedReader reader = new BufferedReader(new FileReader(path));
+    	String line;
+    	// leggi fino alla fine del file
+    	while((line = reader.readLine())!=null) {
+    		// controllo se la stringa ottenuta al separatore richiesto ossia il ;
+    		if (!line.contains(";")) {
+    			// skippa questa riga di file
+    			continue;
+    		}
+    		else {
+    			// dividi la riga nei vari campi
+    			String[] fields = line.split(";");
+    			
+    			// controlla il primo campo:
+    			// dobbiamo avere o T o L
+    			if (fields[0].equals("T")) {
+    				// se ho la T dobbiamo avere altri 3 campi che sono:
+    				// code, category e numero di posti
+    				if (fields.length!=4) {
+    					// numero di campi non corretto ==> skippo la riga
+    					continue;
+    				}
+    				else {
+    					// chiamo liftType
+    					liftType(fields[1],fields[2],Integer.parseInt(fields[3]));
+    				}
+    			}
+    			else if (fields[0].equals("L")) {
+    				// in questo caso devo avere 2 campi aggiuntivi
+    				if (fields.length!=3) {
+    					// numero di campi non corretto ==> skippo la riga
+    					continue;
+    				}
+    				else {
+    					// chiamo createLift
+    					createLift(fields[1],fields[2]);
+    				}
+    			}
+    			else {
+    				// primo campo non valido ==> skippo la riga
+    				continue;
+    			}
+    		}
+    	}
     }
 
 }
